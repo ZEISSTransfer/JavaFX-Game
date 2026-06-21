@@ -1,23 +1,79 @@
 package com.autobattler.app;
 
+import com.autobattler.logic.BattleManager;
+import com.autobattler.logic.GameBoard;
+import com.autobattler.shop.Player;
+import com.autobattler.shop.Shop;
+import com.autobattler.util.GameState;
+import com.autobattler.util.RoundManager;
+import com.autobattler.view.GameOverView;
+import com.autobattler.view.GameView;
+import com.autobattler.view.MainMenuView;
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+
+// Entry point of the game. Manages scene switching between
+// MainMenuView -> GameView -> GameOverView.
+// Extends Application, which is the base class for all JavaFX apps.
 
 public class GameApp extends Application {
 
+    // The single window of the application; swap its Scene to switch views
+    private Stage primaryStage;
+
+    // Called automatically by JavaFX after launch().
+    // Sets up the window and shows the main menu.
+
     @Override
     public void start(Stage primaryStage) {
-        StackPane root = new StackPane();
-        Scene scene = new Scene(root, 960, 720);
-
+        this.primaryStage = primaryStage;
         primaryStage.setTitle("Auto Battler");
-        primaryStage.setScene(scene);
+        primaryStage.setResizable(false);
+        showMainMenu();
         primaryStage.show();
     }
 
+    // Display the main menu. this::startGame is a method reference used as callback —
+    // when the player clicks "Start", MainMenuView calls startGame().
+    private void showMainMenu() {
+        MainMenuView menu = new MainMenuView(this::startGame);
+        primaryStage.setScene(new Scene(menu, 960, 720));
+    }
+
+    // Create all game objects and wire them together, then enter the first round
+    private void startGame() {
+        // Core game objects
+        Player player = new Player();
+        GameBoard board = new GameBoard();
+        Shop shop = new Shop();
+        GameState state = new GameState();
+        BattleManager battleManager = new BattleManager(null);
+
+        // UI and game loop
+        GameView gameView = new GameView(board, shop, player, state);
+        RoundManager roundManager = new RoundManager(
+                board, shop, player, battleManager, state, gameView);
+
+
+        // Register a callback: when the game ends, switch to GameOverView
+        roundManager.setOnGameOver(() -> {
+            boolean won = player.getHp() > 0;
+            showGameOver(won, state.getCurrentRound());
+        });
+
+        gameView.setRoundManager(roundManager);
+        primaryStage.setScene(new Scene(gameView, 960, 720));
+        roundManager.startPreparePhase(); // begin round 1
+    }
+
+    // Display the game over screen with result and a restart option
+    private void showGameOver(boolean won, int rounds) {
+        GameOverView view = new GameOverView(won, rounds, this::showMainMenu);
+        primaryStage.setScene(new Scene(view, 960, 720));
+    }
+
     public static void main(String[] args) {
-        launch(args);
+        launch(args); // JavaFX entry: calls start() internally
     }
 }
