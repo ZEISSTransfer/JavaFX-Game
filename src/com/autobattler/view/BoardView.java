@@ -1,5 +1,6 @@
 package com.autobattler.view;
 
+import com.autobattler.controller.DragHandler;
 import com.autobattler.logic.GameBoard;
 import javafx.scene.layout.GridPane;
 
@@ -185,7 +186,7 @@ public class BoardView extends GridPane {
     }
 
     public void showBattleResult(boolean playerWon, int survivorCount) {
-        Label result = new Label(playerWon ? "胜利!" : "失败!");
+        Label result = new Label(playerWon ? "Victory!" : "Defeated!");
         result.setStyle("-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: rgba(0,0,0,0.65); -fx-padding: 12 22;");
         add(result, 2, 1, 4, 2);
         PauseTransition pause = new PauseTransition(Duration.seconds(1.4));

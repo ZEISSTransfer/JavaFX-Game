@@ -12,6 +12,7 @@ import com.autobattler.view.BoardView;
 import com.autobattler.view.GameOverView;
 import com.autobattler.view.GameView;
 import com.autobattler.view.MainMenuView;
+import com.autobattler.view.ShopView;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -63,10 +64,25 @@ public class GameApp extends Application {
         DragHandler dragHandler = new DragHandler(board, boardView);
         boardView.setDragHandler(dragHandler);
 
+        // Shop UI — shows buyable pieces, auto-places on board
+        ShopView shopView = new ShopView(shop);
+        shopView.setPlayer(player);
+        shopView.setBoard(board);
+
         // UI and game loop
         GameView gameView = new GameView(board, shop, player, state);
         gameView.getBoardArea().getChildren().clear();
         gameView.getBoardArea().getChildren().add(boardView);
+        gameView.getShopArea().getChildren().clear();
+        gameView.getShopArea().getChildren().add(shopView);
+        gameView.setShopView(shopView);
+        gameView.setBoardView(boardView);
+
+        // When shop buys a piece, refresh board + info
+        shopView.setOnUpdate(() -> {
+            boardView.refresh();
+            gameView.updateInfo();
+        });
 
         RoundManager roundManager = new RoundManager(
                 board, shop, player, battleManager, state, gameView);

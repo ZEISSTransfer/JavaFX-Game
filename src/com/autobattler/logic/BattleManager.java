@@ -323,17 +323,17 @@ public class BattleManager {
 
     private String skillName(ChessPiece actor) {
         if (actor instanceof Warrior) {
-            return "旋风斩";
+            return "Whirlwind";
         }
         if (actor instanceof Mage) {
-            return "火球术";
+            return "Fireball";
         }
         if (actor instanceof Archer) {
-            return "穿透箭";
+            return "Pierce Shot";
         }
         if (actor instanceof Tank) {
-            return "嘲讽";
+            return "Taunt";
         }
-        return "技能";
+        return "Skill";
     }
 }

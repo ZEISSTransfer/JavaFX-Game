@@ -41,6 +41,8 @@ public class GameView extends BorderPane {
     // Placeholders for B and C's views; will be swapped during integration
     private StackPane boardArea;
     private HBox shopArea;
+    private ShopView shopView;
+    private BoardView boardViewRef;
 
     // Button style constants
     private static final String BTN_STYLE = "-fx-background-color: #0A84FF; -fx-text-fill: white;"
@@ -174,6 +176,19 @@ public class GameView extends BorderPane {
         readyBtn.setDisable(!enabled);
         refreshShopBtn.setDisable(!enabled);
         levelUpBtn.setDisable(!enabled);
+    }
+
+    public void setShopView(ShopView sv) { this.shopView = sv; }
+    public void setBoardView(BoardView bv) { this.boardViewRef = bv; }
+
+    // Refresh the board display (e.g. after placing enemies)
+    public void refreshBoardView() {
+        if (boardViewRef != null) boardViewRef.refresh();
+    }
+
+    // Called when shop needs to refresh display (start of prepare phase)
+    public void refreshShopView() {
+        if (shopView != null) shopView.refresh();
     }
 
     // Getters for integration — B/C swap the placeholder with their real views

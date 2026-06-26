@@ -7,6 +7,9 @@ import com.autobattler.shop.Player;
 import com.autobattler.shop.Shop;
 import com.autobattler.view.GameView;
 
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
+
 import java.util.List;
 
 // Core game loop controller. Coordinates the three-phase cycle:
@@ -47,6 +50,7 @@ public class RoundManager {
         player.addGold(GameConstants.INCOME_PER_ROUND);
         shop.refresh(player.getLevel());
         gameView.setControlsEnabled(true); // unlock Refresh/LevelUp/Ready buttons
+        gameView.refreshShopView();
         gameView.updateInfo();
     }
 
@@ -59,6 +63,7 @@ public class RoundManager {
     public void refreshShop() {
         if (player.spendGold(GameConstants.REFRESH_COST)) {
             shop.refresh(player.getLevel());
+            gameView.refreshShopView();
             gameView.updateInfo();
         }
     }
@@ -91,12 +96,17 @@ public class RoundManager {
             col++;
         }
 
+        // Refresh board to show enemies, then delay before battle starts
+        gameView.refreshBoardView();
 
-        List<ChessPiece> playerPieces = board.getPlayerPieces();
-        List<ChessPiece> enemyPieces = board.getEnemyPieces();
-        battleManager.startBattle(playerPieces, enemyPieces);
-
-        settleRound(battleManager.isPlayerWon());
+        PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
+        delay.setOnFinished(e -> {
+            List<ChessPiece> playerPieces = board.getPlayerPieces();
+            List<ChessPiece> enemyPieces = board.getEnemyPieces();
+            battleManager.startBattle(playerPieces, enemyPieces);
+            settleRound(battleManager.isPlayerWon());
+        });
+        delay.play();
     }
 
     // === SETTLEMENT PHASE ===
@@ -112,7 +122,9 @@ public class RoundManager {
             player.setHp(player.getHp() - damage);
         }
 
-        board.clearEnemySide(); // remove dead enemies for next round
+        board.clearEnemySide();
+        clearDeadPlayerPieces();
+        gameView.refreshBoardView();
 
         // Check end conditions: player died or survived all rounds
         if (player.getHp() <= 0 || state.getCurrentRound() >= GameState.MAX_ROUNDS) {
@@ -124,5 +136,17 @@ public class RoundManager {
         // Continue to next round
         state.nextRound();
         startPreparePhase();
+    }
+
+    // Remove dead player pieces from the board after battle
+    private void clearDeadPlayerPieces() {
+        for (int row = 0; row < GameConstants.PLAYER_ROWS; row++) {
+            for (int col = 0; col < GameConstants.BOARD_COLS; col++) {
+                ChessPiece piece = board.getPiece(row, col);
+                if (piece != null && !piece.isAlive()) {
+                    board.removePiece(row, col);
+                }
+            }
+        }
     }
 }

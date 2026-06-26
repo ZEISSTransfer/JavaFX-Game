@@ -1,5 +1,6 @@
 package com.autobattler.controller;
 
+import com.autobattler.logic.GameBoard;
 import com.autobattler.model.ChessPiece;
 import com.autobattler.view.BoardView;
 import javafx.scene.Node;
