@@ -3,17 +3,33 @@ package com.autobattler.logic;
 import com.autobattler.model.ChessPiece;
 import java.util.List;
 
-// Battle event callbacks — implemented by BattleAnimator (Member B)
-// to drive UI animations from BattleManager's combat logic.
+/**
+ * Event interface used by the battle engine to notify animation or UI layers.
+ */
 public interface BattleListener {
 
-    void onMove(ChessPiece piece, int toRow, int toCol);
+    default void onBattleStart() {
+    }
 
-    void onAttack(ChessPiece attacker, ChessPiece target, int damage);
+    default void onMove(ChessPiece piece, int toRow, int toCol) {
+    }
 
-    void onSkill(ChessPiece caster, List<ChessPiece> targets, String skillName);
 
-    void onDeath(ChessPiece piece);
+    default void onAttack(ChessPiece attacker, ChessPiece target, int damage) {
+    }
 
-    void onBattleEnd(boolean playerWon, int survivorCount);
+
+    default void onSkill(ChessPiece caster, List<ChessPiece> targets, String skillName) {
+    }
+
+
+    default void onDeath(ChessPiece piece) {
+    }
+
+    default void onBattleEnd(boolean playerWon) {
+    }
+
+    default void onBattleEnd(boolean playerWon, int survivorCount) {
+        onBattleEnd(playerWon);
+    }
 }
