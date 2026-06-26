@@ -13,6 +13,7 @@ public class GameConstants {
 
     // Economy
     public static final int INITIAL_GOLD = 10;
+    public static final int INITIAL_HP = 100;
     public static final int INCOME_PER_ROUND = 5;
     public static final int WIN_BONUS = 3;
     public static final int REFRESH_COST = 2;
@@ -41,4 +42,5 @@ public class GameConstants {
     public static final int MAGE_COST = 4;
     public static final int ARCHER_COST = 3;
     public static final int TANK_COST = 5;
+    public static final int ITEM_COST = 3;
 }

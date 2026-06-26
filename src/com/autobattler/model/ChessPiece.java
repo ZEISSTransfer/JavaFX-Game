@@ -52,7 +52,13 @@ public abstract class ChessPiece {
 
     public void setRow(int row) { this.row = row; }
     public void setCol(int col) { this.col = col; }
+    /** Set the current HP. */
+    public void setHp(int hp) { this.hp = hp; }
     public void setAttack(int attack) { this.attack = attack; }
     public void setDefense(int defense) { this.defense = defense; }
+    /** Set the piece speed. */
+    public void setSpeed(int speed) { this.speed = speed; }
+    /** Set the piece attack range. */
+    public void setRange(int range) { this.range = range; }
     public void setMaxHp(int maxHp) { this.maxHp = maxHp; this.hp = maxHp; }
 }
