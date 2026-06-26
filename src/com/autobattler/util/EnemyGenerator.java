@@ -28,16 +28,17 @@ public class EnemyGenerator {
         for (int i = 0; i < count; i++) {
             ChessPiece enemy = randomEnemy(round);
             // Apply difficulty scaling to base stats
-            enemy.setAttack((int) (enemy.getAttack() * scale));
-            enemy.setDefense((int) (enemy.getDefense() * scale));
+            enemy.setAtk((int) (enemy.getAtk() * scale));
+            enemy.setDef((int) (enemy.getDef() * scale));
             enemy.setMaxHp((int) (enemy.getMaxHp() * scale));
+            enemy.setHp(enemy.getMaxHp());
             enemies.add(enemy);
         }
         return enemies;
     }
 
     // Unlock more enemy types as rounds progress
-        private static ChessPiece randomEnemy(int round) {
+    private static ChessPiece randomEnemy(int round) {
         if (round <= 2) {
             return new Warrior();                          // rounds 1-2: Warrior only
         } else if (round <= 4) {

@@ -1,11 +1,14 @@
 package com.autobattler.app;
 
+import com.autobattler.controller.BattleAnimator;
+import com.autobattler.controller.DragHandler;
 import com.autobattler.logic.BattleManager;
 import com.autobattler.logic.GameBoard;
 import com.autobattler.shop.Player;
 import com.autobattler.shop.Shop;
 import com.autobattler.util.GameState;
 import com.autobattler.util.RoundManager;
+import com.autobattler.view.BoardView;
 import com.autobattler.view.GameOverView;
 import com.autobattler.view.GameView;
 import com.autobattler.view.MainMenuView;
@@ -48,13 +51,25 @@ public class GameApp extends Application {
         GameBoard board = new GameBoard();
         Shop shop = new Shop();
         GameState state = new GameState();
-        BattleManager battleManager = new BattleManager(null);
+
+        // Board UI (Member B) — replaces the placeholder in GameView
+        BoardView boardView = new BoardView(board);
+
+        // Battle system: animator converts combat events into board animations
+        BattleAnimator animator = new BattleAnimator(boardView);
+        BattleManager battleManager = new BattleManager(animator);
+
+        // Drag & drop for placing pieces during prepare phase
+        DragHandler dragHandler = new DragHandler(board, boardView);
+        boardView.setDragHandler(dragHandler);
 
         // UI and game loop
         GameView gameView = new GameView(board, shop, player, state);
+        gameView.getBoardArea().getChildren().clear();
+        gameView.getBoardArea().getChildren().add(boardView);
+
         RoundManager roundManager = new RoundManager(
                 board, shop, player, battleManager, state, gameView);
-
 
         // Register a callback: when the game ends, switch to GameOverView
         roundManager.setOnGameOver(() -> {

@@ -94,9 +94,9 @@ public class RoundManager {
 
         List<ChessPiece> playerPieces = board.getPlayerPieces();
         List<ChessPiece> enemyPieces = board.getEnemyPieces();
-        boolean playerWon = battleManager.runBattle(playerPieces, enemyPieces);
+        battleManager.startBattle(playerPieces, enemyPieces);
 
-        settleRound(playerWon);
+        settleRound(battleManager.isPlayerWon());
     }
 
     // === SETTLEMENT PHASE ===

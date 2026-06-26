@@ -9,6 +9,7 @@ public class GameConstants {
     public static final int PLAYER_ROW_END = 1;
     public static final int ENEMY_ROW_START = 2;
     public static final int ENEMY_ROW_END = 3;
+    public static final int PLAYER_ROWS = 2;
     public static final int CELL_SIZE = 80;
 
     // Economy
