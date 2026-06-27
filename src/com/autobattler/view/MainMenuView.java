@@ -89,6 +89,8 @@ public class MainMenuView extends VBox {
               + "   Your pieces fight the enemy pieces turn by turn.\n\n"
               + "3. SETTLEMENT - Win = bonus gold. Lose = take damage.\n"
               + "   Damage increases in later rounds.\n\n"
+              + "GOLD - +5 each round, +3 for a win.\n"
+              + "   Win or loss streaks of 2 / 3 / 4+ give +1 / +2 / +3 bonus gold.\n\n"
               + "Win: Survive 15 rounds.    Lose: HP drops to 0."
         );
         rules.setFont(Font.font("Segoe UI", 15));

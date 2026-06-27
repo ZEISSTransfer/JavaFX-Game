@@ -34,7 +34,8 @@ public class EquipmentView extends VBox {
     public EquipmentView(Player player, GameBoard board) {
         this.player = player;
         this.board = board;
-        setPrefWidth(210);
+        setPrefWidth(224);
+        setMinWidth(224);
         setSpacing(8);
         setStyle("-fx-background-color: #0F2137; -fx-border-color: #C89B3C;"
                 + "-fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;"
@@ -130,7 +131,7 @@ public class EquipmentView extends VBox {
     private String btnStyle(boolean hover) {
         return "-fx-background-color: " + (hover ? "#3BA4FF" : "#0A84FF") + "; -fx-text-fill: white;"
                 + "-fx-background-radius: 4; -fx-cursor: hand; -fx-font-size: 10; -fx-font-weight: bold;"
-                + "-fx-min-width: 56; -fx-padding: 3 2;";
+                + "-fx-min-width: 50; -fx-padding: 3 2;";
     }
 
     private void msg(String s) {

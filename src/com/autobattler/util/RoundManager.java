@@ -27,6 +27,7 @@ public class RoundManager {
     private GameState state;
     private GameView gameView;
     private Runnable onGameOver;  // callback to GameApp for scene switch
+    private int streak = 0;       // >0 = win streak, <0 = loss streak (for streak gold)
 
     public RoundManager(GameBoard board, Shop shop, Player player,
                         BattleManager battleManager, GameState state, GameView gameView) {
@@ -125,9 +126,19 @@ public class RoundManager {
 
         if (playerWon) {
             player.addGold(GameConstants.WIN_BONUS);       // bonus gold for winning
+            streak = (streak > 0) ? streak + 1 : 1;        // extend or flip to a win streak
         } else {
             int damage = 5 + state.getCurrentRound() * 2;  // losing hurts more in later rounds
             player.setHp(player.getHp() - damage);
+            streak = (streak < 0) ? streak - 1 : -1;       // extend or flip to a loss streak
+        }
+
+        // TFT-style streak gold: a run of 2 / 3 / 4+ pays +1 / +2 / +3
+        int bonus = streakBonus(Math.abs(streak));
+        if (bonus > 0) {
+            player.addGold(bonus);
+            gameView.showHint((playerWon ? "Win" : "Loss") + " streak "
+                    + Math.abs(streak) + "!  +" + bonus + "g");
         }
 
         board.clearEnemySide();
@@ -144,6 +155,14 @@ public class RoundManager {
         // Continue to next round
         state.nextRound();
         startPreparePhase();
+    }
+
+    // Streak gold tiers: 2 -> +1, 3 -> +2, 4 or more -> +3
+    private int streakBonus(int s) {
+        if (s >= 4) return 3;
+        if (s == 3) return 2;
+        if (s == 2) return 1;
+        return 0;
     }
 
     // Remove dead player pieces from the board after battle
