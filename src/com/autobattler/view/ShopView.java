@@ -91,8 +91,11 @@ public class ShopView extends HBox {
         bar.setPrefWidth(120);
         bar.setStyle("-fx-accent: #C89B3C;");
 
-        Label pieces = new Label("Max pieces: " + player.getMaxPieces());
-        pieces.setStyle("-fx-text-fill: #8FA1B3; -fx-font-size: 11;");
+        int placed = (board != null) ? board.getPlayerPieces().size() : 0;
+        int max = player.getMaxPieces();
+        Label pieces = new Label("Pieces: " + placed + " / " + max);
+        pieces.setStyle("-fx-text-fill: " + (placed >= max ? "#E84057" : "#8FA1B3")
+                + "; -fx-font-size: 11; -fx-font-weight: bold;");
 
         boolean maxed = player.getLevel() >= GameConstants.MAX_LEVEL;
         Label next = new Label(maxed ? "MAX LEVEL"
@@ -129,9 +132,15 @@ public class ShopView extends HBox {
 
         Button buyBtn = new Button("Buy");
         buyBtn.setStyle(buyStyle(false));
-        buyBtn.setOnMouseEntered(e -> buyBtn.setStyle(buyStyle(true)));
-        buyBtn.setOnMouseExited(e -> buyBtn.setStyle(buyStyle(false)));
+        if (boardFull()) {
+            buyBtn.setDisable(true); // reached the level's piece limit
+        }
+        buyBtn.setOnMouseEntered(e -> { if (!buyBtn.isDisabled()) buyBtn.setStyle(buyStyle(true)); });
+        buyBtn.setOnMouseExited(e -> { if (!buyBtn.isDisabled()) buyBtn.setStyle(buyStyle(false)); });
         buyBtn.setOnAction(event -> {
+            if (boardFull()) {
+                return; // can't place more pieces than the level allows
+            }
             ChessPiece bought = shop.buy(index, player);
             if (bought != null) {
                 placeOnBoard(bought); // Member D glue: drop the bought piece onto the board
@@ -147,6 +156,11 @@ public class ShopView extends HBox {
     private String buyStyle(boolean hover) {
         return "-fx-background-color: " + (hover ? "#3BA4FF" : "#0A84FF") + "; -fx-text-fill: white;"
                 + "-fx-background-radius: 5; -fx-cursor: hand; -fx-font-size: 12; -fx-padding: 4 16;";
+    }
+
+    // Member D glue: true when the board already holds the level's piece limit.
+    private boolean boardFull() {
+        return board != null && board.getPlayerPieces().size() >= player.getMaxPieces();
     }
 
     // Member D glue: place a bought piece on the first empty player cell.
