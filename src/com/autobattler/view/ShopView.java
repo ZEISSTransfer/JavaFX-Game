@@ -9,14 +9,16 @@ import java.util.List;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 // Shop UI. Economy/offerings logic is Member C's Shop/Player (buy, pricing,
-// rarity rolls) — unchanged. This view only renders the offerings in the
-// project's TFT theme. Member D integration glue: a board reference so bought
-// pieces are placed on the board, an onUpdate callback, and a public refresh()
-// so RoundManager can re-roll the shop each prepare phase.
+// rarity rolls) — unchanged. This view renders the offerings in the project's
+// TFT theme, with a Gold panel on the left and a level-progress panel on the
+// right. Member D integration glue: a board reference so bought pieces are
+// placed on the board, an onUpdate callback, and a public refresh() so
+// RoundManager can re-roll/redraw the shop.
 public class ShopView extends HBox {
 
     private static final String CARD_STYLE =
@@ -41,7 +43,7 @@ public class ShopView extends HBox {
     public ShopView(Shop shop, Player player) {
         this.shop = shop;
         this.player = player;
-        setSpacing(12);
+        setSpacing(14);
         setAlignment(Pos.CENTER);
         setStyle("-fx-padding: 6;");
         refresh();
@@ -50,16 +52,57 @@ public class ShopView extends HBox {
     public void setBoard(GameBoard board) { this.board = board; }
     public void setOnUpdate(Runnable onUpdate) { this.onUpdate = onUpdate; }
 
-    /** Rebuild the visible shop slots. Public so RoundManager can re-roll. */
+    /** Rebuild the shop row: Gold | offering cards | level progress. */
     public void refresh() {
         getChildren().clear();
+        getChildren().add(buildGoldPanel());
+
         List<ChessPiece> offerings = shop.getOfferings();
-        if (offerings == null) {
-            return;
+        if (offerings != null) {
+            for (int i = 0; i < offerings.size(); i++) {
+                getChildren().add(createSlot(i, offerings.get(i)));
+            }
         }
-        for (int i = 0; i < offerings.size(); i++) {
-            getChildren().add(createSlot(i, offerings.get(i)));
-        }
+
+        getChildren().add(buildLevelPanel());
+    }
+
+    // Left panel: current gold (Member C's original shop showed gold here).
+    private VBox buildGoldPanel() {
+        Label title = new Label("GOLD");
+        title.setStyle("-fx-text-fill: #6E7C91; -fx-font-size: 11; -fx-font-weight: bold;");
+        Label value = new Label(String.valueOf(player.getGold()));
+        value.setStyle("-fx-text-fill: #C89B3C; -fx-font-size: 26; -fx-font-weight: bold;");
+        VBox box = new VBox(2, title, value);
+        box.setAlignment(Pos.CENTER);
+        box.setMinWidth(80);
+        return box;
+    }
+
+    // Right panel: level progress, max pieces, and next level-up cost.
+    private VBox buildLevelPanel() {
+        Label title = new Label("LEVEL");
+        title.setStyle("-fx-text-fill: #6E7C91; -fx-font-size: 11; -fx-font-weight: bold;");
+
+        Label lvl = new Label("Lv " + player.getLevel() + " / " + GameConstants.MAX_LEVEL);
+        lvl.setStyle("-fx-text-fill: #F0E6D2; -fx-font-size: 16; -fx-font-weight: bold;");
+
+        ProgressBar bar = new ProgressBar((double) player.getLevel() / GameConstants.MAX_LEVEL);
+        bar.setPrefWidth(120);
+        bar.setStyle("-fx-accent: #C89B3C;");
+
+        Label pieces = new Label("Max pieces: " + player.getMaxPieces());
+        pieces.setStyle("-fx-text-fill: #8FA1B3; -fx-font-size: 11;");
+
+        boolean maxed = player.getLevel() >= GameConstants.MAX_LEVEL;
+        Label next = new Label(maxed ? "MAX LEVEL"
+                : "Next level: " + GameConstants.levelUpCost(player.getLevel()) + " G");
+        next.setStyle("-fx-text-fill: #C89B3C; -fx-font-size: 12; -fx-font-weight: bold;");
+
+        VBox box = new VBox(3, title, lvl, bar, pieces, next);
+        box.setAlignment(Pos.CENTER);
+        box.setMinWidth(140);
+        return box;
     }
 
     private VBox createSlot(int index, ChessPiece piece) {

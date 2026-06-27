@@ -39,10 +39,10 @@ import static com.autobattler.util.GameConstants.PLAYER_ROWS;
  */
 public class BoardView extends GridPane {
     private static final String EMPTY_STYLE = "-fx-border-color: #44515f; -fx-border-width: 1;";
-    private static final Color PLAYER_FILL = Color.web("#d9ecff");
-    private static final Color ENEMY_FILL = Color.web("#ffe1df");
-    private static final Color PLAYER_ALT_FILL = Color.web("#c8e2fb");
-    private static final Color ENEMY_ALT_FILL = Color.web("#ffd0cc");
+    private static final Color PLAYER_FILL = Color.web("#213a52");
+    private static final Color ENEMY_FILL = Color.web("#4a2832");
+    private static final Color PLAYER_ALT_FILL = Color.web("#1a3046");
+    private static final Color ENEMY_ALT_FILL = Color.web("#3c212a");
 
     private final GameBoard gameBoard;
     private final StackPane[][] cells = new StackPane[BOARD_ROWS][BOARD_COLS];
@@ -187,8 +187,12 @@ public class BoardView extends GridPane {
 
     public void showBattleResult(boolean playerWon, int survivorCount) {
         Label result = new Label(playerWon ? "Victory!" : "Defeated!");
-        result.setStyle("-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: white; -fx-background-color: rgba(0,0,0,0.65); -fx-padding: 12 22;");
-        add(result, 2, 1, 4, 2);
+        result.setStyle("-fx-font-size: 30; -fx-font-weight: bold; -fx-text-fill: white;"
+                + " -fx-background-color: rgba(10,20,40,0.88); -fx-border-color: #C89B3C; -fx-border-width: 2;"
+                + " -fx-background-radius: 10; -fx-border-radius: 10; -fx-padding: 14 30;");
+        GridPane.setHalignment(result, javafx.geometry.HPos.CENTER);
+        GridPane.setValignment(result, javafx.geometry.VPos.CENTER);
+        add(result, 0, 0, BOARD_COLS, BOARD_ROWS);
         PauseTransition pause = new PauseTransition(Duration.seconds(1.4));
         pause.setOnFinished(event -> getChildren().remove(result));
         pause.play();
@@ -245,7 +249,7 @@ public class BoardView extends GridPane {
         HBox hpBar = createHealthBar(piece);
         Label name = new Label(piece.getName());
         name.setMaxWidth(CELL_SIZE - 8);
-        name.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #1d2730;");
+        name.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #F0E6D2;");
         box.getChildren().addAll(hpBar, portrait, name);
         return new StackPane(box);
     }

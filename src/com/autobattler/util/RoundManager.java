@@ -74,6 +74,7 @@ public class RoundManager {
         // so just delegate (avoids charging the cost twice).
         player.levelUp();
         gameView.updateInfo();
+        gameView.refreshShopView(); // keep the shop's gold/level panels in sync
     }
 
     // === BATTLE PHASE ===
@@ -117,7 +118,7 @@ public class RoundManager {
         if (playerWon) {
             player.addGold(GameConstants.WIN_BONUS);       // bonus gold for winning
         } else {
-            int damage = 2 + state.getCurrentRound();      // losing hurts more in later rounds
+            int damage = 5 + state.getCurrentRound() * 2;  // losing hurts more in later rounds
             player.setHp(player.getHp() - damage);
         }
 
