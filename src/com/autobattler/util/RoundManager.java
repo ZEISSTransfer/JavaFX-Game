@@ -11,6 +11,8 @@ import javafx.animation.PauseTransition;
 import javafx.util.Duration;
 
 import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 // Core game loop controller. Coordinates the three-phase cycle:
 // PREPARE -> BATTLE -> SETTLEMENT -> next round
@@ -28,6 +30,8 @@ public class RoundManager {
     private GameView gameView;
     private Runnable onGameOver;  // callback to GameApp for scene switch
     private int streak = 0;       // >0 = win streak, <0 = loss streak (for streak gold)
+    // player formation captured before battle, so pieces can be revived in place after
+    private final Map<ChessPiece, int[]> formation = new LinkedHashMap<>();
 
     public RoundManager(GameBoard board, Shop shop, Player player,
                         BattleManager battleManager, GameState state, GameView gameView) {
@@ -90,6 +94,7 @@ public class RoundManager {
     // Generate enemies, place them on the board, then run auto-combat
     private void startBattlePhase() {
         state.setCurrentPhase(GameState.Phase.BATTLE);
+        snapshotFormation();                // remember formation to restore after battle
         gameView.setControlsEnabled(false); // lock buttons during combat
         gameView.updateInfo();
 
@@ -141,9 +146,10 @@ public class RoundManager {
                     + Math.abs(streak) + "!  +" + bonus + "g");
         }
 
+        // Show the aftermath: enemies gone, your damaged/fallen pieces still on the board
         board.clearEnemySide();
-        clearDeadPlayerPieces();
         gameView.refreshBoardView();
+        gameView.updateInfo();
 
         // Check end conditions: player died or survived all rounds
         if (player.getHp() <= 0 || state.getCurrentRound() >= GameState.MAX_ROUNDS) {
@@ -152,9 +158,15 @@ public class RoundManager {
             return;
         }
 
-        // Continue to next round
-        state.nextRound();
-        startPreparePhase();
+        // Let the player see who fell, then revive + full-heal the whole formation in place
+        PauseTransition recover = new PauseTransition(Duration.seconds(1.3));
+        recover.setOnFinished(e -> {
+            restoreFormation();
+            gameView.refreshBoardView();
+            state.nextRound();
+            startPreparePhase();
+        });
+        recover.play();
     }
 
     // Streak gold tiers: 2 -> +1, 3 -> +2, 4 or more -> +3
@@ -165,15 +177,34 @@ public class RoundManager {
         return 0;
     }
 
-    // Remove dead player pieces from the board after battle
-    private void clearDeadPlayerPieces() {
+    // Record the player's formation (piece -> cell) before battle.
+    private void snapshotFormation() {
+        formation.clear();
         for (int row = 0; row < GameConstants.PLAYER_ROWS; row++) {
             for (int col = 0; col < GameConstants.BOARD_COLS; col++) {
                 ChessPiece piece = board.getPiece(row, col);
-                if (piece != null && !piece.isAlive()) {
+                if (piece != null) {
+                    formation.put(piece, new int[]{row, col});
+                }
+            }
+        }
+    }
+
+    // After battle: auto-battler convention — pieces are never lost. Clear any
+    // leftovers, then put every piece back in its original cell at full HP
+    // (fallen pieces revive).
+    private void restoreFormation() {
+        for (int row = 0; row < GameConstants.BOARD_ROWS; row++) {
+            for (int col = 0; col < GameConstants.BOARD_COLS; col++) {
+                if (board.getPiece(row, col) != null) {
                     board.removePiece(row, col);
                 }
             }
+        }
+        for (Map.Entry<ChessPiece, int[]> entry : formation.entrySet()) {
+            ChessPiece piece = entry.getKey();
+            piece.setHp(piece.getMaxHp());
+            board.placePiece(piece, entry.getValue()[0], entry.getValue()[1]);
         }
     }
 }
