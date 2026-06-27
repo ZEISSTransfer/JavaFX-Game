@@ -36,7 +36,7 @@ public class GameConstants {
 
     // Enemy generation
     public static final int BASE_ENEMY_COUNT = 2;
-    public static final double ENEMY_STAT_SCALE = 0.10;
+    public static final double ENEMY_STAT_SCALE = 0.07;
 
     // Piece cost
     public static final int WARRIOR_COST = 3;

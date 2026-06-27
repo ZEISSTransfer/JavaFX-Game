@@ -128,7 +128,7 @@ public class RoundManager {
             player.addGold(GameConstants.WIN_BONUS);       // bonus gold for winning
             streak = (streak > 0) ? streak + 1 : 1;        // extend or flip to a win streak
         } else {
-            int damage = 5 + state.getCurrentRound() * 2;  // losing hurts more in later rounds
+            int damage = 3 + state.getCurrentRound();      // losing hurts more in later rounds
             player.setHp(player.getHp() - damage);
             streak = (streak < 0) ? streak - 1 : -1;       // extend or flip to a loss streak
         }
