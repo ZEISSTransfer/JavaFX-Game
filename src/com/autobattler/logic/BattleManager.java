@@ -329,7 +329,7 @@ public class BattleManager {
             return "Fireball";
         }
         if (actor instanceof Archer) {
-            return "Pierce Shot";
+            return "Pierce";
         }
         if (actor instanceof Tank) {
             return "Taunt";

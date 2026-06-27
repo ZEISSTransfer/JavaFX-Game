@@ -120,8 +120,8 @@ public class GameView extends BorderPane {
 
     // Bottom panel: shop area + control buttons (Refresh / Level Up / Ready)
     private VBox createBottomPanel() {
-        VBox bottom = new VBox(10);
-        bottom.setPadding(new Insets(10));
+        VBox bottom = new VBox(6);
+        bottom.setPadding(new Insets(8, 10, 6, 10));
         bottom.setAlignment(Pos.CENTER);
         bottom.setStyle("-fx-background-color: #0F2137; -fx-border-color: #C89B3C;"
                 + "-fx-border-width: 1 0 0 0;");
@@ -171,7 +171,7 @@ public class GameView extends BorderPane {
         hintLabel = new Label("");
         hintLabel.setFont(Font.font("Consolas", FontWeight.BOLD, 14));
         hintLabel.setStyle("-fx-text-fill: #E84057;");
-        hintLabel.setMinHeight(18); // reserve space so layout doesn't jump
+        hintLabel.setMinHeight(14); // reserve space so layout doesn't jump
 
         bottom.getChildren().addAll(shopArea, hintLabel, controls);
         return bottom;

@@ -1,5 +1,6 @@
 package com.autobattler.util;
 
+import com.autobattler.controller.BattleAnimator;
 import com.autobattler.logic.BattleManager;
 import com.autobattler.logic.GameBoard;
 import com.autobattler.model.ChessPiece;
@@ -26,6 +27,7 @@ public class RoundManager {
     private Shop shop;
     private Player player;
     private BattleManager battleManager;
+    private BattleAnimator animator;
     private GameState state;
     private GameView gameView;
     private Runnable onGameOver;  // callback to GameApp for scene switch
@@ -34,11 +36,13 @@ public class RoundManager {
     private final Map<ChessPiece, int[]> formation = new LinkedHashMap<>();
 
     public RoundManager(GameBoard board, Shop shop, Player player,
-                        BattleManager battleManager, GameState state, GameView gameView) {
+                        BattleManager battleManager, BattleAnimator animator,
+                        GameState state, GameView gameView) {
         this.board = board;
         this.shop = shop;
         this.player = player;
         this.battleManager = battleManager;
+        this.animator = animator;
         this.state = state;
         this.gameView = gameView;
     }
@@ -115,10 +119,18 @@ public class RoundManager {
 
         PauseTransition delay = new PauseTransition(Duration.seconds(1.5));
         delay.setOnFinished(e -> {
-            List<ChessPiece> playerPieces = board.getPlayerPieces();
-            List<ChessPiece> enemyPieces = board.getEnemyPieces();
-            battleManager.startBattle(playerPieces, enemyPieces);
-            settleRound(battleManager.isPlayerWon());
+            // BattleManager resolves the fight instantly and queues animation steps.
+            List<ChessPiece> combatants = new java.util.ArrayList<>(board.getPlayerPieces());
+            combatants.addAll(board.getEnemyPieces());
+            battleManager.startBattle(board.getPlayerPieces(), board.getEnemyPieces());
+            boolean won = battleManager.isPlayerWon();
+            // Reset everyone to full HP so the replay shows damage building up
+            // gradually (the queued steps re-apply each hit's HP in order).
+            for (ChessPiece p : combatants) {
+                p.setHp(p.getMaxHp());
+            }
+            gameView.refreshBoardView();
+            animator.play(() -> settleRound(won));
         });
         delay.play();
     }

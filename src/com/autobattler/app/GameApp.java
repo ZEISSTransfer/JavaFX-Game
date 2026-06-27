@@ -82,7 +82,7 @@ public class GameApp extends Application {
         shopView.setOnMessage(gameView::showHint);  // shop feedback (e.g. "Not enough gold!")
 
         RoundManager roundManager = new RoundManager(
-                board, shop, player, battleManager, state, gameView);
+                board, shop, player, battleManager, animator, state, gameView);
 
         // Register a callback: when the game ends, switch to GameOverView
         roundManager.setOnGameOver(() -> {

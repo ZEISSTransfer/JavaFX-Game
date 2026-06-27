@@ -149,9 +149,8 @@ public class BoardView extends GridPane {
         if (targetNode != null) {
             flashNode(targetNode, Color.web("#ff5a5f"));
         }
-        PauseTransition refreshDelay = new PauseTransition(Duration.millis(280));
-        refreshDelay.setOnFinished(event -> refresh());
-        refreshDelay.play();
+        // No refresh here: the playback step already updates HP, and a delayed
+        // refresh would leak into the next step and wipe the skill-name label.
     }
 
     public void animateSkill(ChessPiece caster, String skillName) {
@@ -163,9 +162,11 @@ public class BoardView extends GridPane {
         label.setStyle("-fx-font-weight: bold; -fx-text-fill: #214f93; -fx-background-color: rgba(255,255,255,0.85); -fx-padding: 3 6;");
         casterNode.getChildren().add(label);
 
-        TranslateTransition floatUp = new TranslateTransition(Duration.millis(650), label);
-        floatUp.setByY(-28);
-        FadeTransition fade = new FadeTransition(Duration.millis(650), label);
+        // Float up slowly, stay readable, then fade — total ~900ms.
+        TranslateTransition floatUp = new TranslateTransition(Duration.millis(900), label);
+        floatUp.setByY(-34);
+        FadeTransition fade = new FadeTransition(Duration.millis(500), label);
+        fade.setDelay(Duration.millis(400)); // hold the text solid before fading
         fade.setFromValue(1.0);
         fade.setToValue(0.0);
         fade.setOnFinished(event -> casterNode.getChildren().remove(label));

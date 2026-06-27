@@ -2,6 +2,10 @@ package com.autobattler.view;
 
 import com.autobattler.logic.GameBoard;
 import com.autobattler.model.ChessPiece;
+import com.autobattler.model.Archer;
+import com.autobattler.model.Mage;
+import com.autobattler.model.Tank;
+import com.autobattler.model.Warrior;
 import com.autobattler.shop.Player;
 import com.autobattler.shop.Shop;
 import com.autobattler.util.GameConstants;
@@ -14,11 +18,9 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
-// Shop UI. Economy/offerings logic is Member C's Shop/Player (buy, pricing,
-// rarity rolls) — unchanged. Renders the offerings in the TFT theme with a
-// Gold panel on the left and a level-progress panel on the right.
-// Member D integration glue: board auto-placement of bought pieces, an
-// onUpdate callback, an onMessage hint sink, and a public refresh().
+// Shop UI. Economy/offerings logic is Member C's Shop/Player (buy, pricing,rarity rolls) — unchanged.
+// Renders the offerings in the TFT theme with a Gold panel on the left and a level-progress panel on the right.
+// Integration glue: board auto-placement of bought pieces, an onUpdate callback, an onMessage hint sink, and a public refresh().
 public class ShopView extends HBox {
 
     private static final String CARD_STYLE =
@@ -106,9 +108,9 @@ public class ShopView extends HBox {
     }
 
     private VBox createSlot(int index, ChessPiece piece) {
-        VBox card = new VBox(5);
+        VBox card = new VBox(4);
         card.setAlignment(Pos.CENTER);
-        card.setMinWidth(110);
+        card.setMinWidth(122);
         card.setStyle(CARD_STYLE);
 
         if (piece == null) {
@@ -123,6 +125,11 @@ public class ShopView extends HBox {
 
         Label stats = new Label("HP " + piece.getMaxHp() + "   ATK " + piece.getAtk());
         stats.setStyle("-fx-text-fill: #8FA1B3; -fx-font-size: 11;");
+
+        Label skill = new Label(skillText(piece));
+        skill.setWrapText(true);
+        skill.setMaxWidth(112);
+        skill.setStyle("-fx-text-fill: #B79CE6; -fx-font-size: 9;"); // skill = purple accent
 
         Label cost = new Label(shop.getCost(piece) + " G");
         cost.setStyle("-fx-text-fill: #C89B3C; -fx-font-weight: bold; -fx-font-size: 13;");
@@ -151,8 +158,25 @@ public class ShopView extends HBox {
             if (onUpdate != null) onUpdate.run();
         });
 
-        card.getChildren().addAll(name, stats, cost, buyBtn);
+        card.getChildren().addAll(name, stats, skill, cost, buyBtn);
         return card;
+    }
+
+    // Short skill blurb shown on each shop card (skill logic is Member A's).
+    private String skillText(ChessPiece piece) {
+        if (piece instanceof Tank) {
+            return "Taunt: draws enemy fire";
+        }
+        if (piece instanceof Mage) {
+            return "Fireball: 1.8x ATK";
+        }
+        if (piece instanceof Archer) {
+            return "Pierce: hits row / column";
+        }
+        if (piece instanceof Warrior) {
+            return "Whirlwind: AoE 1.2x ATK";
+        }
+        return "";
     }
 
     private String buyStyle(boolean hover) {
