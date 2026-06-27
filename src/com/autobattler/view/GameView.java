@@ -13,6 +13,8 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
+import javafx.animation.PauseTransition;
+import javafx.util.Duration;
 
 // Main game screen layout using BorderPane:
 // Top    = info bar (round, gold, level, hp, phase)
@@ -24,7 +26,9 @@ public class GameView extends BorderPane {
 
     private Player player;
     private GameState state;
+    private GameBoard board;
     private RoundManager roundManager;
+    private EquipmentView equipmentView;
 
     // Info bar labels — updated each phase via updateInfo()
     private Label roundLabel;
@@ -32,6 +36,7 @@ public class GameView extends BorderPane {
     private Label levelLabel;
     private Label hpLabel;
     private Label phaseLabel;
+    private Label hintLabel; // transient feedback, e.g. "Not enough gold!"
 
     // Control buttons — disabled during battle phase
     private Button readyBtn;
@@ -55,6 +60,7 @@ public class GameView extends BorderPane {
     public GameView(GameBoard board, Shop shop, Player player, GameState state) {
         this.player = player;
         this.state = state;
+        this.board = board;
         setStyle("-fx-background-color: #0A1428;");
 
         // BorderPane regions: Top, Center, Bottom
@@ -73,6 +79,13 @@ public class GameView extends BorderPane {
 
         // Bottom: shop + buttons
         setBottom(createBottomPanel());
+
+        // Right: equipment panel (buy + equip items to chosen pieces)
+        equipmentView = new EquipmentView(player, board);
+        equipmentView.setOnUpdate(this::refreshAll);
+        equipmentView.setOnMessage(this::showHint);
+        setRight(equipmentView);
+        BorderPane.setMargin(equipmentView, new Insets(10));
     }
 
     // Top bar: displays game stats in a horizontal row
@@ -154,7 +167,13 @@ public class GameView extends BorderPane {
         readyBtn.setOnAction(e -> { if (roundManager != null) roundManager.onPlayerReady(); });
 
         controls.getChildren().addAll(refreshShopBtn, levelUpBtn, readyBtn);
-        bottom.getChildren().addAll(shopArea, controls);
+
+        hintLabel = new Label("");
+        hintLabel.setFont(Font.font("Consolas", FontWeight.BOLD, 14));
+        hintLabel.setStyle("-fx-text-fill: #E84057;");
+        hintLabel.setMinHeight(18); // reserve space so layout doesn't jump
+
+        bottom.getChildren().addAll(shopArea, hintLabel, controls);
         return bottom;
     }
 
@@ -169,6 +188,14 @@ public class GameView extends BorderPane {
         hpLabel.setText("HP: " + player.getHp());
         phaseLabel.setText(state.getCurrentPhase().name());
         levelUpBtn.setText("Level Up (-" + GameConstants.levelUpCost(player.getLevel()) + "g)");
+    }
+
+    // Briefly show a feedback message (e.g. insufficient gold), then clear it.
+    public void showHint(String msg) {
+        hintLabel.setText(msg);
+        PauseTransition fade = new PauseTransition(Duration.seconds(1.4));
+        fade.setOnFinished(e -> { if (msg.equals(hintLabel.getText())) hintLabel.setText(""); });
+        fade.play();
     }
 
     // Enable/disable all buttons (disabled during battle phase)
@@ -189,6 +216,14 @@ public class GameView extends BorderPane {
     // Called when shop needs to refresh display (start of prepare phase)
     public void refreshShopView() {
         if (shopView != null) shopView.refresh();
+    }
+
+    // Full UI refresh after a purchase/equip: board, info bar, shop, equipment.
+    public void refreshAll() {
+        refreshBoardView();
+        updateInfo();
+        refreshShopView();
+        if (equipmentView != null) equipmentView.refresh();
     }
 
     // Getters for integration — B/C swap the placeholder with their real views

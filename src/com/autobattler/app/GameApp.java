@@ -78,10 +78,8 @@ public class GameApp extends Application {
         gameView.setBoardView(boardView);
 
         // When shop buys a piece, refresh board + info
-        shopView.setOnUpdate(() -> {
-            boardView.refresh();
-            gameView.updateInfo();
-        });
+        shopView.setOnUpdate(gameView::refreshAll); // refresh board, info, shop and equipment
+        shopView.setOnMessage(gameView::showHint);  // shop feedback (e.g. "Not enough gold!")
 
         RoundManager roundManager = new RoundManager(
                 board, shop, player, battleManager, state, gameView);

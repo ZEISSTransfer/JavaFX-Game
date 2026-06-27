@@ -50,8 +50,7 @@ public class RoundManager {
         player.addGold(GameConstants.INCOME_PER_ROUND);
         shop.refresh(player.getLevel());
         gameView.setControlsEnabled(true); // unlock Refresh/LevelUp/Ready buttons
-        gameView.refreshShopView();
-        gameView.updateInfo();
+        gameView.refreshAll();             // refresh shop, info bar and equipment panel
     }
 
     // Called when player clicks the "Ready!" button in GameView
@@ -65,13 +64,22 @@ public class RoundManager {
             shop.refresh(player.getLevel());
             gameView.refreshShopView();
             gameView.updateInfo();
+        } else {
+            gameView.showHint("Not enough gold!");
         }
     }
 
     // Called when player clicks "Level Up" — costs levelUpCost(currentLevel)
     public void levelUp() {
-        // Player.levelUp() already checks the max level and spends the gold,
-        // so just delegate (avoids charging the cost twice).
+        if (player.getLevel() >= GameConstants.MAX_LEVEL) {
+            gameView.showHint("Already max level");
+            return;
+        }
+        if (player.getGold() < GameConstants.levelUpCost(player.getLevel())) {
+            gameView.showHint("Not enough gold!");
+            return;
+        }
+        // Player.levelUp() spends the gold and increments the level.
         player.levelUp();
         gameView.updateInfo();
         gameView.refreshShopView(); // keep the shop's gold/level panels in sync

@@ -71,30 +71,41 @@ public class MainMenuView extends VBox {
         getChildren().addAll(title, subtitle, startBtn, helpBtn);
     }
 
-    // Replace menu content with game rules text
+    // Replace menu content with game rules on a parchment-style scroll.
     private void showHelp() {
         getChildren().clear();
 
         Label helpTitle = new Label("How to Play");
-        helpTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 32));
-        helpTitle.setStyle("-fx-text-fill: #C89B3C;");
+        helpTitle.setFont(Font.font("Segoe UI", FontWeight.BOLD, 30));
+        helpTitle.setStyle("-fx-text-fill: #4a2f10;"); // dark brown on parchment
 
         Label rules = new Label(
                 "Each round has 3 phases:\n\n"
               + "1. PREPARE - Buy pieces from the shop and place them on the board.\n"
               + "   Use gold to refresh the shop or level up.\n"
-              + "   Higher level = more pieces on the board.\n\n"
+              + "   Higher level = more pieces on the board.\n"
+              + "   Equip items to your pieces for stat bonuses.\n\n"
               + "2. BATTLE - Click Ready to start. Combat runs automatically.\n"
               + "   Your pieces fight the enemy pieces turn by turn.\n\n"
               + "3. SETTLEMENT - Win = bonus gold. Lose = take damage.\n"
               + "   Damage increases in later rounds.\n\n"
-              + "Win: Survive 15 rounds.\n"
-              + "Lose: HP drops to 0."
+              + "Win: Survive 15 rounds.    Lose: HP drops to 0."
         );
         rules.setFont(Font.font("Segoe UI", 15));
-        rules.setStyle("-fx-text-fill: #F0E6D2; -fx-line-spacing: 3;");
+        rules.setStyle("-fx-text-fill: #3a2810; -fx-line-spacing: 3;");
         rules.setWrapText(true);
-        rules.setMaxWidth(500);
+        rules.setMaxWidth(540);
+
+        // Parchment scroll panel
+        VBox parchment = new VBox(20, helpTitle, rules);
+        parchment.setAlignment(Pos.CENTER);
+        parchment.setMaxWidth(640);
+        parchment.setStyle(
+                "-fx-background-color: linear-gradient(to bottom right, #efe3c2, #dcc593, #c7a566);"
+                + "-fx-border-color: #6b4a1f; -fx-border-width: 3;"
+                + "-fx-background-radius: 6; -fx-border-radius: 6;"
+                + "-fx-padding: 38 52 38 52;"
+                + "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 26, 0.3, 0, 10);");
 
         Button backBtn = new Button("Back");
         backBtn.setFont(Font.font("Segoe UI", 16));
@@ -102,11 +113,8 @@ public class MainMenuView extends VBox {
                 + "-fx-border-color: #C89B3C; -fx-border-width: 1;"
                 + "-fx-background-radius: 8; -fx-border-radius: 8;"
                 + "-fx-padding: 10 30; -fx-cursor: hand;");
-        backBtn.setOnAction(e -> {
-            // Rebuild the main menu by replacing scene root
-            getScene().setRoot(new MainMenuView(onStart));
-        });
+        backBtn.setOnAction(e -> getScene().setRoot(new MainMenuView(onStart)));
 
-        getChildren().addAll(helpTitle, rules, backBtn);
+        getChildren().addAll(parchment, backBtn);
     }
 }

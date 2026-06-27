@@ -251,6 +251,12 @@ public class BoardView extends GridPane {
         name.setMaxWidth(CELL_SIZE - 8);
         name.setStyle("-fx-font-size: 10; -fx-font-weight: bold; -fx-text-fill: #F0E6D2;");
         box.getChildren().addAll(hpBar, portrait, name);
+        var equipped = piece.getEquippedItem();
+        if (equipped != null) {
+            Label eq = new Label("◆ " + equipped.getName());
+            eq.setStyle("-fx-font-size: 8; -fx-font-weight: bold; -fx-text-fill: #C89B3C;");
+            box.getChildren().add(eq);
+        }
         return new StackPane(box);
     }
 
