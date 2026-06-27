@@ -70,11 +70,10 @@ public class RoundManager {
 
     // Called when player clicks "Level Up" — costs levelUpCost(currentLevel)
     public void levelUp() {
-        int cost = GameConstants.levelUpCost(player.getLevel());
-        if (player.spendGold(cost)) {
-            player.levelUp();
-            gameView.updateInfo();
-        }
+        // Player.levelUp() already checks the max level and spends the gold,
+        // so just delegate (avoids charging the cost twice).
+        player.levelUp();
+        gameView.updateInfo();
     }
 
     // === BATTLE PHASE ===

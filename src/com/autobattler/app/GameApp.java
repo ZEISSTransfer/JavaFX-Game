@@ -65,8 +65,7 @@ public class GameApp extends Application {
         boardView.setDragHandler(dragHandler);
 
         // Shop UI — shows buyable pieces, auto-places on board
-        ShopView shopView = new ShopView(shop);
-        shopView.setPlayer(player);
+        ShopView shopView = new ShopView(shop, player);
         shopView.setBoard(board);
 
         // UI and game loop
