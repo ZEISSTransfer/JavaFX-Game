@@ -39,6 +39,11 @@ public class BattleAnimator implements BattleListener {
     }
 
     @Override
+    public void onMove(ChessPiece piece, int fromRow, int fromCol, int toRow, int toCol) {
+        steps.add(new Step(() -> boardView.animateMove(piece, fromRow, fromCol, toRow, toCol), STEP_MS));
+    }
+
+    @Override
     public void onAttack(ChessPiece attacker, ChessPiece target, int damage) {
         int hpAfter = target.getHp(); // HP right after this hit
         steps.add(new Step(() -> {

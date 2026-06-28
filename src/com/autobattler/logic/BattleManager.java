@@ -57,6 +57,7 @@ public class BattleManager {
         this.forcedTargetMap.clear();
         this.forcedTurnsMap.clear();
         this.notifiedDeaths.clear();
+        Map<ChessPiece, int[]> startingPositions = snapshotPositions();
 
         for (int round = 0; round < MAX_BATTLE_ROUNDS && !battleOver; round++) {
             List<ChessPiece> actors = livingPieces();
@@ -88,6 +89,8 @@ public class BattleManager {
         if (!battleOver) {
             finishByHpTieBreaker();
         }
+
+        restorePositions(startingPositions);
     }
 
     /**
@@ -146,9 +149,11 @@ public class BattleManager {
         }
 
         if (distance(actor, target) > actor.getRange()) {
-            moveToward(actor, target);
-            if (listener != null) {
-                listener.onMove(actor, actor.getRow(), actor.getCol());
+            int fromRow = actor.getRow();
+            int fromCol = actor.getCol();
+            boolean moved = moveToward(actor, target);
+            if (moved && listener != null) {
+                listener.onMove(actor, fromRow, fromCol, actor.getRow(), actor.getCol());
             }
         }
 
@@ -228,21 +233,42 @@ public class BattleManager {
         }
     }
 
-    private void moveToward(ChessPiece piece, ChessPiece target) {
-        int newRow = piece.getRow();
-        int newCol = piece.getCol();
-
+    private boolean moveToward(ChessPiece piece, ChessPiece target) {
         if (piece.getRow() < target.getRow()) {
-            newRow++;
+            if (tryMove(piece, piece.getRow() + 1, piece.getCol())) {
+                return true;
+            }
         } else if (piece.getRow() > target.getRow()) {
-            newRow--;
-        } else if (piece.getCol() < target.getCol()) {
-            newCol++;
-        } else if (piece.getCol() > target.getCol()) {
-            newCol--;
+            if (tryMove(piece, piece.getRow() - 1, piece.getCol())) {
+                return true;
+            }
         }
 
-        piece.setPosition(newRow, newCol);
+        if (piece.getCol() < target.getCol()) {
+            return tryMove(piece, piece.getRow(), piece.getCol() + 1);
+        }
+        if (piece.getCol() > target.getCol()) {
+            return tryMove(piece, piece.getRow(), piece.getCol() - 1);
+        }
+
+        return false;
+    }
+
+    private boolean tryMove(ChessPiece piece, int row, int col) {
+        if (isOccupied(row, col, piece)) {
+            return false;
+        }
+        piece.setPosition(row, col);
+        return true;
+    }
+
+    private boolean isOccupied(int row, int col, ChessPiece movingPiece) {
+        for (ChessPiece piece : livingPieces()) {
+            if (piece != movingPiece && piece.getRow() == row && piece.getCol() == col) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int distance(ChessPiece a, ChessPiece b) {
@@ -254,6 +280,21 @@ public class BattleManager {
         pieces.addAll(livingFrom(teamA));
         pieces.addAll(livingFrom(teamB));
         return pieces;
+    }
+
+    private Map<ChessPiece, int[]> snapshotPositions() {
+        Map<ChessPiece, int[]> positions = new HashMap<>();
+        for (ChessPiece piece : livingPieces()) {
+            positions.put(piece, new int[]{piece.getRow(), piece.getCol()});
+        }
+        return positions;
+    }
+
+    private void restorePositions(Map<ChessPiece, int[]> positions) {
+        for (Map.Entry<ChessPiece, int[]> entry : positions.entrySet()) {
+            int[] position = entry.getValue();
+            entry.getKey().setPosition(position[0], position[1]);
+        }
     }
 
     private List<ChessPiece> livingFrom(List<ChessPiece> pieces) {

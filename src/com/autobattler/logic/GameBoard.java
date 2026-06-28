@@ -3,6 +3,8 @@ package com.autobattler.logic;
 import com.autobattler.model.ChessPiece;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import static com.autobattler.util.GameConstants.BOARD_COLS;
 import static com.autobattler.util.GameConstants.BOARD_ROWS;
 import static com.autobattler.util.GameConstants.PLAYER_ROWS;
@@ -13,9 +15,13 @@ import static com.autobattler.util.GameConstants.PLAYER_ROWS;
  */
 public class GameBoard {
     private final ChessPiece[][] grid;
+    private final Set<ChessPiece> playerPieces;
+    private final Set<ChessPiece> enemyPieces;
 
     public GameBoard() {
         grid = new ChessPiece[BOARD_ROWS][BOARD_COLS];
+        playerPieces = new HashSet<>();
+        enemyPieces = new HashSet<>();
     }
 
     /**
@@ -29,6 +35,8 @@ public class GameBoard {
         }
         grid[row][col] = piece;
         piece.setPosition(row, col);
+        playerPieces.add(piece);
+        enemyPieces.remove(piece);
         return true;
     }
 
@@ -43,6 +51,8 @@ public class GameBoard {
         }
         grid[row][col] = piece;
         piece.setPosition(row, col);
+        enemyPieces.add(piece);
+        playerPieces.remove(piece);
         return true;
     }
 
@@ -82,6 +92,24 @@ public class GameBoard {
     }
 
     /**
+     * Moves a piece from a known source cell. This is used by queued battle
+     * animations, where the piece's coordinates may have changed during the
+     * instant battle simulation before the visual replay starts.
+     */
+    public boolean movePiece(ChessPiece piece, int fromRow, int fromCol, int toRow, int toCol) {
+        if (piece == null || !isInsideBoard(fromRow, fromCol) || !isInsideBoard(toRow, toCol)) {
+            return false;
+        }
+        if (grid[fromRow][fromCol] != piece || grid[toRow][toCol] != null) {
+            return false;
+        }
+        grid[fromRow][fromCol] = null;
+        grid[toRow][toCol] = piece;
+        piece.setPosition(toRow, toCol);
+        return true;
+    }
+
+    /**
      * Removes and returns a piece from a board cell.
      */
     public ChessPiece removePiece(int row, int col) {
@@ -90,23 +118,23 @@ public class GameBoard {
         }
         ChessPiece removed = grid[row][col];
         grid[row][col] = null;
+        if (removed != null) {
+            playerPieces.remove(removed);
+            enemyPieces.remove(removed);
+        }
         updatePosition(removed, -1, -1);
         return removed;
     }
 
     public List<ChessPiece> getPlayerPieces() {
         List<ChessPiece> pieces = new ArrayList<>();
-        for (int row = 0; row < PLAYER_ROWS; row++) {
-            collectAliveFromRow(pieces, row);
-        }
+        collectAliveByTeam(pieces, playerPieces);
         return pieces;
     }
 
     public List<ChessPiece> getEnemyPieces() {
         List<ChessPiece> pieces = new ArrayList<>();
-        for (int row = PLAYER_ROWS; row < BOARD_ROWS; row++) {
-            collectAliveFromRow(pieces, row);
-        }
+        collectAliveByTeam(pieces, enemyPieces);
         return pieces;
     }
 
@@ -129,11 +157,22 @@ public class GameBoard {
     }
 
     public void clearEnemySide() {
-        for (int row = PLAYER_ROWS; row < BOARD_ROWS; row++) {
+        for (int row = 0; row < BOARD_ROWS; row++) {
             for (int col = 0; col < BOARD_COLS; col++) {
-                removePiece(row, col);
+                ChessPiece piece = grid[row][col];
+                if (piece != null && isEnemyPiece(piece)) {
+                    removePiece(row, col);
+                }
             }
         }
+    }
+
+    public boolean isPlayerPiece(ChessPiece piece) {
+        return piece != null && playerPieces.contains(piece);
+    }
+
+    public boolean isEnemyPiece(ChessPiece piece) {
+        return piece != null && enemyPieces.contains(piece);
     }
 
     public boolean isInsideBoard(int row, int col) {
@@ -146,6 +185,17 @@ public class GameBoard {
 
     public boolean isEnemyCell(int row, int col) {
         return isInsideBoard(row, col) && row >= PLAYER_ROWS;
+    }
+
+    private void collectAliveByTeam(List<ChessPiece> pieces, Set<ChessPiece> team) {
+        for (int row = 0; row < BOARD_ROWS; row++) {
+            for (int col = 0; col < BOARD_COLS; col++) {
+                ChessPiece piece = grid[row][col];
+                if (piece != null && piece.isAlive() && team.contains(piece)) {
+                    pieces.add(piece);
+                }
+            }
+        }
     }
 
     private void collectAliveFromRow(List<ChessPiece> pieces, int row) {

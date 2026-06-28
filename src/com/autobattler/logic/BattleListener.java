@@ -14,6 +14,10 @@ public interface BattleListener {
     default void onMove(ChessPiece piece, int toRow, int toCol) {
     }
 
+    default void onMove(ChessPiece piece, int fromRow, int fromCol, int toRow, int toCol) {
+        onMove(piece, toRow, toCol);
+    }
+
 
     default void onAttack(ChessPiece attacker, ChessPiece target, int damage) {
     }
