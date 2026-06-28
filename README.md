@@ -83,8 +83,26 @@ The project uses encapsulation by keeping most game data private and exposing be
 
 ## How to Run
 
-Open the project in an IDE with JavaFX configured, then run:
+The entry point is `com.autobattler.app.GameApp`. Requires **JDK 17 or newer** and JavaFX. The project ships a `pom.xml`, so importing it as a Maven project is the easiest way to run it (Maven downloads JavaFX automatically).
 
-`com.autobattler.app.GameApp`
+### Run in Eclipse (recommended: import as Maven)
 
-The project is built with JDK 26 and JavaFX SDK 26. Add the JavaFX `lib` folder to the module path with `--add-modules javafx.controls,javafx.fxml,javafx.media` when compiling/running.
+1. **File → Import… → Maven → Existing Maven Projects**, then select the folder that contains `pom.xml`.
+2. Let Eclipse (m2e) download the JavaFX dependencies declared in `pom.xml`.
+3. Right-click the project → **Run As → Maven build…**, set **Goals** to `javafx:run`, then **Run**. The main class `com.autobattler.app.GameApp` is already configured in the `javafx-maven-plugin`.
+
+Maven handles the JavaFX libraries for you, and the piece images load from `src/main/resources`.
+
+If you instead import it as a plain Java project: mark `src` as the source folder, add the JavaFX SDK to the module path, and add the VM arguments `--module-path <javafx-sdk>/lib --add-modules javafx.controls,javafx.fxml,javafx.media`. Piece images load from `src/img`.
+
+### Run in IntelliJ IDEA
+
+Open the project, set the SDK to JDK 17+ (developed on JDK 26), add the JavaFX SDK `lib` folder to the module path, set the run VM options to `--module-path <javafx-sdk>/lib --add-modules javafx.controls,javafx.fxml,javafx.media`, then run `com.autobattler.app.GameApp`.
+
+### Command line
+
+```
+javac --module-path <javafx-sdk>/lib --add-modules javafx.controls,javafx.fxml,javafx.media -d build $(find src -name "*.java")
+cp -r src/img build/
+java --module-path <javafx-sdk>/lib --add-modules javafx.controls,javafx.fxml,javafx.media -cp build com.autobattler.app.GameApp
+```
