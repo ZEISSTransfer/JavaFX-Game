@@ -4,14 +4,14 @@ import java.util.Comparator;
 import java.util.List;
 
 /**
- * Long-range attacker that prefers distant enemies.
+ * Long-range attacker that targets the closest enemy (clears the front line first).
  */
 public class Archer extends ChessPiece {
     /**
      * Creates a default archer.
      */
     public Archer() {
-        super("Archer", 140, 28, 6, 4, 99, 4, 1);
+        super("Archer", 140, 34, 6, 4, 99, 4, 1);
     }
 
     @Override
@@ -51,7 +51,7 @@ public class Archer extends ChessPiece {
         }
         return enemies.stream()
                 .filter(enemy -> enemy != null && enemy.isAlive())
-                .max(Comparator.comparingInt(this::distanceTo))
+                .min(Comparator.comparingInt(this::distanceTo))
                 .orElse(null);
     }
 

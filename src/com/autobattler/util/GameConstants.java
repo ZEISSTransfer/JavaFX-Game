@@ -36,8 +36,8 @@ public class GameConstants {
 
     // Enemy generation
     public static final int BASE_ENEMY_COUNT = 2;
-    public static final int MAX_ENEMY_COUNT = 6;       // cap on enemies per round
-    public static final double ENEMY_STAT_SCALE = 0.04;
+    public static final int MAX_ENEMY_COUNT = 8;       // cap on enemies per round
+    public static final double ENEMY_STAT_SCALE = 0.05;
 
     // Piece cost
     public static final int WARRIOR_COST = 3;

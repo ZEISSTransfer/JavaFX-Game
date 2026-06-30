@@ -23,9 +23,9 @@ The player starts with health, gold, and a small army capacity. Each round has a
 ## Units
 
 - **Warrior**: A melee fighter that targets the closest enemy and has an area skill.
-- **Archer**: A long-range attacker that prefers distant enemies and can hit enemies in the same row or column.
+- **Archer**: A long-range attacker that can reach anywhere on the board, targets the closest enemy, and hits enemies in the same row or column.
 - **Mage**: A caster that targets low-health enemies and deals high skill damage.
-- **Tank**: A durable front-line unit that targets strong enemies and can taunt nearby opponents.
+- **Tank**: A durable front-line unit that targets the closest enemy and can taunt all enemies onto itself.
 
 ## Skills
 
@@ -36,7 +36,7 @@ Every unit casts its skill on each third action during battle (skill animations 
 | Warrior | Whirlwind | Deals 1.3x ATK to all adjacent enemies (area damage). |
 | Archer | Pierce Shot | Hits every enemy in the same row or column for full ATK; otherwise a normal attack. |
 | Mage | Fireball | Deals 1.8x ATK to a single target. |
-| Tank | Taunt | Deals no damage; forces nearby enemies to attack the Tank for 2 turns. |
+| Tank | Taunt | Deals no damage; forces all enemies to attack the Tank for 2 turns. |
 
 ## Items
 

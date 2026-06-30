@@ -8,8 +8,8 @@ import java.util.Random;
 
 // Generates enemy pieces for each round with increasing difficulty.
 // Two scaling axes:
-// 1. Count: more enemies in later rounds (BASE + round/2, capped at BOARD_COLS)
-// 2. Stats: attack/defense/hp multiplied by (1 + round * 10%)
+// 1. Count: more enemies in later rounds (BASE + round/2, capped at MAX_ENEMY_COUNT)
+// 2. Stats: attack/defense/hp multiplied by (1 + round * ENEMY_STAT_SCALE)
 // Enemy variety also increases: early rounds only Warriors, later all types.
 
 public class EnemyGenerator {

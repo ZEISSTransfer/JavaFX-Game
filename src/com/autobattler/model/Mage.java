@@ -11,7 +11,7 @@ public class Mage extends ChessPiece {
      * Creates a default mage.
      */
     public Mage() {
-        super("Mage", 120, 40, 5, 2, 99, 4, 2);
+        super("Mage", 120, 30, 5, 2, 99, 4, 2);
     }
 
     @Override

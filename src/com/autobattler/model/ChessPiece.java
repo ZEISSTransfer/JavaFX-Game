@@ -91,7 +91,10 @@ public abstract class ChessPiece {
         if (damage <= 0) {
             return;
         }
-        int actual = Math.max(1, damage - this.def);
+        // Percentage mitigation: higher DEF reduces a larger share of damage,
+        // but never grants full immunity (always at least 1 damage taken).
+        int actual = (int) Math.round(damage * (100.0 / (100 + this.def)));
+        actual = Math.max(1, actual);
         this.hp = Math.max(0, this.hp - actual);
     }
 

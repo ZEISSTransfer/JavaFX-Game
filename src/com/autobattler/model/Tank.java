@@ -38,12 +38,16 @@ public class Tank extends ChessPiece {
         }
         return enemies.stream()
                 .filter(enemy -> enemy != null && enemy.isAlive())
-                .max(Comparator.comparingInt(ChessPiece::getAtk))
+                .min(Comparator.comparingInt(this::distanceTo))
                 .orElse(null);
     }
 
     @Override
     public ChessPiece copy() {
         return new Tank();
+    }
+
+    private int distanceTo(ChessPiece target) {
+        return Math.abs(getRow() - target.getRow()) + Math.abs(getCol() - target.getCol());
     }
 }

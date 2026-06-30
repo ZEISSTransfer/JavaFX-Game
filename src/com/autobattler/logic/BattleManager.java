@@ -201,8 +201,10 @@ public class BattleManager {
     }
 
     private void applyTankTaunt(ChessPiece tank, List<ChessPiece> enemies) {
+        // Taunt all living enemies so even long-range attackers must target the Tank
+        // for the next 2 turns, letting the Tank soak fire off the player's carries.
         for (ChessPiece enemy : enemies) {
-            if (enemy != null && enemy.isAlive() && distance(tank, enemy) <= 1) {
+            if (enemy != null && enemy.isAlive()) {
                 forcedTargetMap.put(enemy, tank);
                 forcedTurnsMap.put(enemy, 2);
             }
