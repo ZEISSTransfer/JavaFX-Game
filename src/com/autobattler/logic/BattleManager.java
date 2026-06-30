@@ -5,6 +5,7 @@ import com.autobattler.model.ChessPiece;
 import com.autobattler.model.Mage;
 import com.autobattler.model.Tank;
 import com.autobattler.model.Warrior;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -18,6 +19,8 @@ import java.util.Set;
  */
 public class BattleManager {
     private static final int MAX_BATTLE_ROUNDS = 100;
+    private static final int BOARD_MIN = 0;
+    private static final int PATH_SEARCH_PADDING = 2;
 
     private BattleListener listener;
     private List<ChessPiece> teamA;
@@ -148,7 +151,7 @@ public class BattleManager {
             return;
         }
 
-        if (distance(actor, target) > actor.getRange()) {
+        if (distance(actor, target) > actor.getRange() && canMove(actor)) {
             int fromRow = actor.getRow();
             int fromCol = actor.getCol();
             boolean moved = moveToward(actor, target);
@@ -233,33 +236,80 @@ public class BattleManager {
         }
     }
 
-    private boolean moveToward(ChessPiece piece, ChessPiece target) {
-        if (piece.getRow() < target.getRow()) {
-            if (tryMove(piece, piece.getRow() + 1, piece.getCol())) {
-                return true;
-            }
-        } else if (piece.getRow() > target.getRow()) {
-            if (tryMove(piece, piece.getRow() - 1, piece.getCol())) {
-                return true;
-            }
-        }
-
-        if (piece.getCol() < target.getCol()) {
-            return tryMove(piece, piece.getRow(), piece.getCol() + 1);
-        }
-        if (piece.getCol() > target.getCol()) {
-            return tryMove(piece, piece.getRow(), piece.getCol() - 1);
-        }
-
-        return false;
+    private boolean canMove(ChessPiece piece) {
+        return piece instanceof Warrior || piece instanceof Tank;
     }
 
-    private boolean tryMove(ChessPiece piece, int row, int col) {
-        if (isOccupied(row, col, piece)) {
+    private boolean moveToward(ChessPiece piece, ChessPiece target) {
+        Position next = findNextStep(piece, target);
+        if (next == null) {
             return false;
         }
-        piece.setPosition(row, col);
+        piece.setPosition(next.row, next.col);
         return true;
+    }
+
+    private Position findNextStep(ChessPiece piece, ChessPiece target) {
+        Position start = new Position(piece.getRow(), piece.getCol());
+        int maxRow = maxOccupiedRow() + PATH_SEARCH_PADDING;
+        int maxCol = maxOccupiedCol() + PATH_SEARCH_PADDING;
+
+        ArrayDeque<PathNode> queue = new ArrayDeque<>();
+        Set<Position> visited = new HashSet<>();
+        queue.add(new PathNode(start, null));
+        visited.add(start);
+
+        while (!queue.isEmpty()) {
+            PathNode current = queue.removeFirst();
+            if (!current.position.equals(start)
+                    && distance(current.position.row, current.position.col, target) <= piece.getRange()) {
+                return current.firstStep == null ? current.position : current.firstStep;
+            }
+
+            for (Position next : neighborsToward(current.position, target)) {
+                if (next.row < BOARD_MIN || next.col < BOARD_MIN || next.row > maxRow || next.col > maxCol) {
+                    continue;
+                }
+                if (visited.contains(next) || isOccupied(next.row, next.col, piece)) {
+                    continue;
+                }
+                Position firstStep = current.firstStep == null ? next : current.firstStep;
+                queue.addLast(new PathNode(next, firstStep));
+                visited.add(next);
+            }
+        }
+
+        return null;
+    }
+
+    private List<Position> neighborsToward(Position position, ChessPiece target) {
+        List<Position> neighbors = new ArrayList<>();
+        neighbors.add(new Position(position.row + 1, position.col));
+        neighbors.add(new Position(position.row - 1, position.col));
+        neighbors.add(new Position(position.row, position.col + 1));
+        neighbors.add(new Position(position.row, position.col - 1));
+        neighbors.sort(Comparator.comparingInt(next -> distance(next.row, next.col, target)));
+        return neighbors;
+    }
+
+    private int maxOccupiedRow() {
+        int max = BOARD_MIN;
+        for (ChessPiece piece : livingPieces()) {
+            max = Math.max(max, piece.getRow());
+        }
+        return max;
+    }
+
+    private int maxOccupiedCol() {
+        int max = BOARD_MIN;
+        for (ChessPiece piece : livingPieces()) {
+            max = Math.max(max, piece.getCol());
+        }
+        return max;
+    }
+
+    private int distance(int row, int col, ChessPiece target) {
+        return Math.abs(row - target.getRow()) + Math.abs(col - target.getCol());
     }
 
     private boolean isOccupied(int row, int col, ChessPiece movingPiece) {
@@ -273,6 +323,43 @@ public class BattleManager {
 
     private int distance(ChessPiece a, ChessPiece b) {
         return Math.abs(a.getRow() - b.getRow()) + Math.abs(a.getCol() - b.getCol());
+    }
+
+    private static class PathNode {
+        private final Position position;
+        private final Position firstStep;
+
+        private PathNode(Position position, Position firstStep) {
+            this.position = position;
+            this.firstStep = firstStep;
+        }
+    }
+
+    private static class Position {
+        private final int row;
+        private final int col;
+
+        private Position(int row, int col) {
+            this.row = row;
+            this.col = col;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof Position)) {
+                return false;
+            }
+            Position other = (Position) obj;
+            return row == other.row && col == other.col;
+        }
+
+        @Override
+        public int hashCode() {
+            return 31 * row + col;
+        }
     }
 
     private List<ChessPiece> livingPieces() {
