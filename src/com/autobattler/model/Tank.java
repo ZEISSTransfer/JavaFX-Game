@@ -28,7 +28,7 @@ public class Tank extends ChessPiece {
 
     @Override
     public void useSkill(List<ChessPiece> targets) {
-        // 嘲讽的强制目标效果由 BattleManager 维护，Tank.useSkill 本身不造成伤害。
+        // Taunt effect is managed by BattleManager; Tank.useSkill does no damage.
     }
 
     @Override

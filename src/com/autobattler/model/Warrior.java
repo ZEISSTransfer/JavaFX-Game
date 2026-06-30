@@ -31,7 +31,7 @@ public class Warrior extends ChessPiece {
         if (targets == null) {
             return;
         }
-        int damage = (int) (getAtk() * 0.6);
+        int damage = (int) (getAtk() * 1.2);
         for (ChessPiece target : targets) {
             if (target != null && target.isAlive() && distanceTo(target) <= 1) {
                 target.takeDamage(damage);

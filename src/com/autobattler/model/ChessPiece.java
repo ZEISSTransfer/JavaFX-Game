@@ -114,7 +114,7 @@ public abstract class ChessPiece {
             return;
         }
         this.equippedItem = item;
-        item.apply(this);
+        item.applyEffect(this);
     }
 
     /**

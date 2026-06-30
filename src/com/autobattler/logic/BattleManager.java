@@ -60,6 +60,7 @@ public class BattleManager {
         this.forcedTargetMap.clear();
         this.forcedTurnsMap.clear();
         this.notifiedDeaths.clear();
+        Map<ChessPiece, int[]> startingPositions = snapshotPositions();
 
         for (int round = 0; round < MAX_BATTLE_ROUNDS && !battleOver; round++) {
             List<ChessPiece> actors = livingPieces();
@@ -91,6 +92,8 @@ public class BattleManager {
         if (!battleOver) {
             finishByHpTieBreaker();
         }
+
+        restorePositions(startingPositions);
     }
 
     /**
@@ -149,9 +152,11 @@ public class BattleManager {
         }
 
         if (distance(actor, target) > actor.getRange() && canMove(actor)) {
+            int fromRow = actor.getRow();
+            int fromCol = actor.getCol();
             boolean moved = moveToward(actor, target);
             if (moved && listener != null) {
-                listener.onMove(actor, actor.getRow(), actor.getCol());
+                listener.onMove(actor, fromRow, fromCol, actor.getRow(), actor.getCol());
             }
         }
 
@@ -364,6 +369,21 @@ public class BattleManager {
         return pieces;
     }
 
+    private Map<ChessPiece, int[]> snapshotPositions() {
+        Map<ChessPiece, int[]> positions = new HashMap<>();
+        for (ChessPiece piece : livingPieces()) {
+            positions.put(piece, new int[]{piece.getRow(), piece.getCol()});
+        }
+        return positions;
+    }
+
+    private void restorePositions(Map<ChessPiece, int[]> positions) {
+        for (Map.Entry<ChessPiece, int[]> entry : positions.entrySet()) {
+            int[] position = entry.getValue();
+            entry.getKey().setPosition(position[0], position[1]);
+        }
+    }
+
     private List<ChessPiece> livingFrom(List<ChessPiece> pieces) {
         List<ChessPiece> living = new ArrayList<>();
         if (pieces == null) {
@@ -431,17 +451,17 @@ public class BattleManager {
 
     private String skillName(ChessPiece actor) {
         if (actor instanceof Warrior) {
-            return "旋风斩";
+            return "Whirlwind";
         }
         if (actor instanceof Mage) {
-            return "火球术";
+            return "Fireball";
         }
         if (actor instanceof Archer) {
-            return "穿透箭";
+            return "Pierce";
         }
         if (actor instanceof Tank) {
-            return "嘲讽";
+            return "Taunt";
         }
-        return "技能";
+        return "Skill";
     }
 }
