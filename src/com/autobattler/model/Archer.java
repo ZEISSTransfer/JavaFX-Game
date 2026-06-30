@@ -11,7 +11,7 @@ public class Archer extends ChessPiece {
      * Creates a default archer.
      */
     public Archer() {
-        super("Archer", 150, 30, 8, 4, 4, 2, 1);
+        super("Archer", 140, 28, 6, 4, 99, 4, 1);
     }
 
     @Override

@@ -11,7 +11,7 @@ public class Warrior extends ChessPiece {
      * Creates a default warrior.
      */
     public Warrior() {
-        super("Warrior", 200, 25, 15, 3, 1, 2, 1);
+        super("Warrior", 200, 28, 12, 3, 1, 3, 1);
     }
 
     @Override
@@ -31,7 +31,7 @@ public class Warrior extends ChessPiece {
         if (targets == null) {
             return;
         }
-        int damage = (int) (getAtk() * 1.2);
+        int damage = (int) (getAtk() * 1.3);
         for (ChessPiece target : targets) {
             if (target != null && target.isAlive() && distanceTo(target) <= 1) {
                 target.takeDamage(damage);

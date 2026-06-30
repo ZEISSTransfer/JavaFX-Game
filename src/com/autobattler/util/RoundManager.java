@@ -3,7 +3,9 @@ package com.autobattler.util;
 import com.autobattler.controller.BattleAnimator;
 import com.autobattler.logic.BattleManager;
 import com.autobattler.logic.GameBoard;
+import com.autobattler.model.Archer;
 import com.autobattler.model.ChessPiece;
+import com.autobattler.model.Mage;
 import com.autobattler.shop.Player;
 import com.autobattler.shop.Shop;
 import com.autobattler.view.GameView;
@@ -105,13 +107,19 @@ public class RoundManager {
         // Generate enemies scaled to current round
         List<ChessPiece> enemies = EnemyGenerator.generate(state.getCurrentRound());
 
-        // Place enemies on the enemy side (rows 2-3)
-        int col = 0;
+        // Place enemies in a formation: melee (front-line) on the front enemy row,
+        // ranged (back-line) on the back enemy row.
+        int frontCol = 0;
+        int backCol = 0;
         for (ChessPiece enemy : enemies) {
-            // If col exceeds row width, overflow to next row
-            int row = GameConstants.ENEMY_ROW_START + (col >= GameConstants.BOARD_COLS ? 1 : 0);
-            board.placeEnemy(enemy, row, col % GameConstants.BOARD_COLS);
-            col++;
+            boolean ranged = (enemy instanceof Archer) || (enemy instanceof Mage);
+            if (ranged) {
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_END, backCol % GameConstants.BOARD_COLS);
+                backCol++;
+            } else {
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_START, frontCol % GameConstants.BOARD_COLS);
+                frontCol++;
+            }
         }
 
         // Refresh board to show enemies, then delay before battle starts

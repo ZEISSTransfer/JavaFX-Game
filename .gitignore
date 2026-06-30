@@ -5,6 +5,10 @@
 *.ipr
 out/
 
+# Build output
+out/
+build/
+
 # Maven
 target/
 

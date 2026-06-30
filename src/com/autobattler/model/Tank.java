@@ -11,7 +11,7 @@ public class Tank extends ChessPiece {
      * Creates a default tank.
      */
     public Tank() {
-        super("Tank", 300, 15, 25, 1, 1, 3, 2);
+        super("Tank", 320, 18, 12, 1, 1, 4, 2);
     }
 
     @Override

@@ -42,7 +42,7 @@ public class GameConstants {
     // Piece cost
     public static final int WARRIOR_COST = 3;
     public static final int MAGE_COST = 4;
-    public static final int ARCHER_COST = 3;
-    public static final int TANK_COST = 5;
+    public static final int ARCHER_COST = 4;
+    public static final int TANK_COST = 4;
     public static final int ITEM_COST = 3;
 }

@@ -165,7 +165,7 @@ public class ShopView extends HBox {
     // Short skill blurb shown on each shop card (skill logic is Member A's).
     private String skillText(ChessPiece piece) {
         if (piece instanceof Tank) {
-            return "Taunt: nearby foes must hit it (2T)";
+            return "Taunt: draws enemy fire";
         }
         if (piece instanceof Mage) {
             return "Fireball: 1.8x ATK";
@@ -174,7 +174,7 @@ public class ShopView extends HBox {
             return "Pierce: hits row / column";
         }
         if (piece instanceof Warrior) {
-            return "Whirlwind: AoE 1.2x ATK";
+            return "Whirlwind: AoE 1.3x ATK";
         }
         return "";
     }

@@ -33,7 +33,7 @@ Every unit casts its skill on each third action during battle (skill animations 
 
 | Unit | Skill | Effect |
 |------|-------|--------|
-| Warrior | Whirlwind | Deals 1.2x ATK to all adjacent enemies (area damage). |
+| Warrior | Whirlwind | Deals 1.3x ATK to all adjacent enemies (area damage). |
 | Archer | Pierce Shot | Hits every enemy in the same row or column for full ATK; otherwise a normal attack. |
 | Mage | Fireball | Deals 1.8x ATK to a single target. |
 | Tank | Taunt | Deals no damage; forces nearby enemies to attack the Tank for 2 turns. |
