@@ -7,7 +7,9 @@ import com.autobattler.model.Tank;
 import com.autobattler.model.Warrior;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Manual smoke test for the battle logic when no JUnit dependency is configured.
@@ -21,6 +23,8 @@ public class BattleManualTest {
     public static void main(String[] args) {
         testDamageAndDeath();
         testFindTarget();
+        testRangedPiecesDoNotMoveToFront();
+        testMeleePiecesDoNotMoveIntoOccupiedCells();
         testBattleCanEnd();
         System.out.println("All manual battle tests passed.");
     }
@@ -93,6 +97,58 @@ public class BattleManualTest {
 
         require(manager.isBattleOver(), "Battle should end.");
         require(manager.getSurvivorCount() >= 0, "Battle should report survivor count.");
+    }
+
+    private static void testRangedPiecesDoNotMoveToFront() {
+        Mage mage = new Mage();
+        mage.setPosition(0, 0);
+        Warrior warrior = new Warrior();
+        warrior.setPosition(5, 0);
+
+        BattleManager manager = new BattleManager(null);
+        manager.startBattle(Arrays.asList(mage), Arrays.asList(warrior));
+
+        require(mage.getRow() == 0 && mage.getCol() == 0,
+                "Mage should keep its backline position instead of moving toward the front.");
+    }
+
+    private static void testMeleePiecesDoNotMoveIntoOccupiedCells() {
+        Warrior frontWarrior = new Warrior();
+        frontWarrior.setPosition(1, 0);
+        Warrior blockedWarrior = new Warrior();
+        blockedWarrior.setPosition(0, 0);
+        Tank enemyTank = new Tank();
+        enemyTank.setPosition(3, 0);
+
+        List<ChessPiece> teamA = Arrays.asList(blockedWarrior, frontWarrior);
+        List<ChessPiece> teamB = Arrays.asList(enemyTank);
+        boolean[] blockedWarriorMovedAround = {false};
+        BattleManager manager = new BattleManager(new BattleListener() {
+            @Override
+            public void onMove(ChessPiece piece, int toRow, int toCol) {
+                if (piece == blockedWarrior && toRow == 0 && toCol == 1) {
+                    blockedWarriorMovedAround[0] = true;
+                }
+                requireNoLivingOverlap(teamA, teamB);
+            }
+        });
+
+        manager.startBattle(teamA, teamB);
+        require(blockedWarriorMovedAround[0],
+                "Blocked melee piece should sidestep instead of staying still behind an occupied cell.");
+    }
+
+    private static void requireNoLivingOverlap(List<ChessPiece> teamA, List<ChessPiece> teamB) {
+        Set<String> occupied = new HashSet<>();
+        List<ChessPiece> pieces = new ArrayList<>();
+        pieces.addAll(teamA);
+        pieces.addAll(teamB);
+        for (ChessPiece piece : pieces) {
+            if (piece != null && piece.isAlive()) {
+                String key = piece.getRow() + "," + piece.getCol();
+                require(occupied.add(key), "Living pieces should not occupy the same board cell.");
+            }
+        }
     }
 
     private static void require(boolean condition, String message) {
