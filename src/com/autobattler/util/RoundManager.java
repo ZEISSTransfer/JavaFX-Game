@@ -108,17 +108,28 @@ public class RoundManager {
         List<ChessPiece> enemies = EnemyGenerator.generate(state.getCurrentRound());
 
         // Place enemies in a formation: melee (front-line) on the front enemy row,
-        // ranged (back-line) on the back enemy row.
-        int frontCol = 0;
-        int backCol = 0;
+        // ranged (back-line) on the back enemy row. Columns are shuffled so the
+        // enemies spread randomly across the board instead of clustering on the left.
+        java.util.List<Integer> frontCols = new java.util.ArrayList<>();
+        java.util.List<Integer> backCols = new java.util.ArrayList<>();
+        for (int c = 0; c < GameConstants.BOARD_COLS; c++) {
+            frontCols.add(c);
+            backCols.add(c);
+        }
+        java.util.Collections.shuffle(frontCols);
+        java.util.Collections.shuffle(backCols);
+        int fi = 0;
+        int bi = 0;
         for (ChessPiece enemy : enemies) {
             boolean ranged = (enemy instanceof Archer) || (enemy instanceof Mage);
-            if (ranged) {
-                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_END, backCol % GameConstants.BOARD_COLS);
-                backCol++;
-            } else {
-                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_START, frontCol % GameConstants.BOARD_COLS);
-                frontCol++;
+            if (ranged && bi < backCols.size()) {
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_END, backCols.get(bi++));
+            } else if (!ranged && fi < frontCols.size()) {
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_START, frontCols.get(fi++));
+            } else if (bi < backCols.size()) { // preferred row full: fall back to a free back-row column
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_END, backCols.get(bi++));
+            } else if (fi < frontCols.size()) {
+                board.placeEnemy(enemy, GameConstants.ENEMY_ROW_START, frontCols.get(fi++));
             }
         }
 

@@ -15,7 +15,7 @@ public class GameConstants {
     // Economy
     public static final int INITIAL_GOLD = 10;
     public static final int INITIAL_HP = 100;
-    public static final int INCOME_PER_ROUND = 5;
+    public static final int INCOME_PER_ROUND = 8;
     public static final int WIN_BONUS = 3;
     public static final int REFRESH_COST = 2;
 
@@ -28,7 +28,7 @@ public class GameConstants {
     }
 
     public static int levelUpCost(int level) {
-        return level * 4;
+        return level * 2;
     }
 
     // Shop
@@ -37,7 +37,7 @@ public class GameConstants {
     // Enemy generation
     public static final int BASE_ENEMY_COUNT = 2;
     public static final int MAX_ENEMY_COUNT = 8;       // cap on enemies per round
-    public static final double ENEMY_STAT_SCALE = 0.05;
+    public static final double ENEMY_STAT_SCALE = 0.045;
 
     // Piece cost
     public static final int WARRIOR_COST = 3;

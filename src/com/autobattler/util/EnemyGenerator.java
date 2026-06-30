@@ -19,8 +19,12 @@ public class EnemyGenerator {
     public static List<ChessPiece> generate(int round) {
         List<ChessPiece> enemies = new ArrayList<>();
 
-        // Enemy count grows with rounds, capped at MAX_ENEMY_COUNT
+        // Enemy count grows with rounds, capped at MAX_ENEMY_COUNT.
+        // Reaches 7 at round 10, then holds at 7 until round 13 adds the 8th enemy.
         int count = Math.min(GameConstants.BASE_ENEMY_COUNT + round / 2, GameConstants.MAX_ENEMY_COUNT);
+        if (round < 13) {
+            count = Math.min(count, 7);
+        }
 
         // Stats scale gently so a healed, persistent board stays competitive
         double scale = 1.0 + round * GameConstants.ENEMY_STAT_SCALE;
