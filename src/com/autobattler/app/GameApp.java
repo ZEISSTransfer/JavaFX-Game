@@ -53,7 +53,7 @@ public class GameApp extends Application {
         Shop shop = new Shop();
         GameState state = new GameState();
 
-        // Board UI (Member B) — replaces the placeholder in GameView
+        // Board UI (Member B) — injected into GameView's board area
         BoardView boardView = new BoardView(board);
 
         // Battle system: animator converts combat events into board animations

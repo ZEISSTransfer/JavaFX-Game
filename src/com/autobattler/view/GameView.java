@@ -43,7 +43,7 @@ public class GameView extends BorderPane {
     private Button refreshShopBtn;
     private Button levelUpBtn;
 
-    // Placeholders for B and C's views; will be swapped during integration
+    // Board and shop containers; GameApp injects the real BoardView / ShopView
     private StackPane boardArea;
     private HBox shopArea;
     private ShopView shopView;
@@ -63,17 +63,14 @@ public class GameView extends BorderPane {
         this.board = board;
         setStyle("-fx-background-color: #0A1428;");
 
-        // BorderPane regions: Top, Center, Bottom
+        // BorderPane regions: Top, Center, Bottom, Right
         setTop(createInfoPanel());
 
-        // Center: board placeholder
+        // Center: board area (the real BoardView is injected by GameApp)
         boardArea = new StackPane();
         boardArea.setStyle("-fx-background-color: #0F2137; -fx-border-color: #C89B3C;"
                 + "-fx-border-width: 1; -fx-border-radius: 4; -fx-background-radius: 4;");
         boardArea.setMinHeight(400);
-        Label placeholder = new Label("Board Area (waiting for Member B)");
-        placeholder.setStyle("-fx-text-fill: #465671; -fx-font-size: 16;");
-        boardArea.getChildren().add(placeholder);
         setCenter(boardArea);
         BorderPane.setMargin(boardArea, new Insets(10));
 
@@ -126,13 +123,10 @@ public class GameView extends BorderPane {
         bottom.setStyle("-fx-background-color: #0F2137; -fx-border-color: #C89B3C;"
                 + "-fx-border-width: 1 0 0 0;");
 
-        // Shop placeholder — C will replace with ShopView
+        // Shop area (the real ShopView is injected by GameApp)
         shopArea = new HBox(10);
         shopArea.setAlignment(Pos.CENTER);
         shopArea.setMinHeight(80);
-        Label shopPlaceholder = new Label("Shop Area (waiting for Member C)");
-        shopPlaceholder.setStyle("-fx-text-fill: #465671;");
-        shopArea.getChildren().add(shopPlaceholder);
 
         // Buttons row
         HBox controls = new HBox(15);
@@ -226,7 +220,7 @@ public class GameView extends BorderPane {
         if (equipmentView != null) equipmentView.refresh();
     }
 
-    // Getters for integration — B/C swap the placeholder with their real views
+    // Getters for integration — GameApp injects the real BoardView / ShopView here
     public StackPane getBoardArea() { return boardArea; }
     public HBox getShopArea() { return shopArea; }
 }
